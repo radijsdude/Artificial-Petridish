@@ -17,7 +17,7 @@ void Larticles_Initiate(Larticles *larticles)
 		p.m = 5.0f;
 		
 		float rra = (float)(rand()%100)/100.0f * 2.0f * M_PI;
-		float rrd = (float)rand()*UNIVERSE_SIZE/(RAND_MAX)/2;
+		float rrd = (float)rand()*UNIVERSE_SIZE/(RAND_MAX)/4;
 		p.x = (float)rrd* cos(rra) + (float)UNIVERSE_SIZE/2.0f;
 		p.y = (float)rrd* sin(rra) + (float)UNIVERSE_SIZE/2.0f;
 		p.vx = 0.0f;
@@ -156,15 +156,13 @@ void Larticles_Doe(Larticles *larticles)
 				 LARTICLE_SIZE_SCALE;
 				larticles->larticles[i].m = larticles->larticles[i].r;
 				larticles->larticles[i].potentials[NEURON_ALIVE_1] = 1.0f;
-				larticles->larticles[i].potentials[NEURON_ALIVE_2] = 1.0f;
+				larticles->larticles[i].potentials[NEURON_ALIVE_2] = 2.0f;
 				larticles->larticles[i].potentials[NEURON_IN_1] = larticles->larticles[i].potentials[NEURON_OUT_1];
 				larticles->larticles[i].potentials[NEURON_IN_2] = larticles->larticles[i].potentials[NEURON_OUT_2];
 				larticles->larticles[i].potentials[NEURON_SENSE_ANGLE] = larticles->larticles[i].angle;
 				larticles->larticles[i].potentials[NEURON_SENSE_HEALTH] = (float)larticles->larticles[i].health /
 				((float)LARTICLE_MAX_HEALTH);
-				//larticles->larticles[i].potentials[NEURON_SENSE_ANGLE_SPEED] = larticles->larticles[i].anglespeed;
-				larticles->larticles[i].potentials[NEURON_TIME] = sin((float)larticles->larticles[i].time * M_PI / 
-				(500.0f * larticles->larticles[i].potentials[NEURON_FREQUENCY]));
+				
 				Larticle_Calculate_All(&larticles->larticles[i]);
 				
 				smax = 0.0f;
@@ -339,7 +337,7 @@ void Larticles_Doe(Larticles *larticles)
 						larticles->larticles[i].time > LARTICLE_TIME)
 						{
 							float drr = 1.0f/d;
-							float daa = (atan2(dy,dx) - la) / d;
+							float daa = (atan2(dy,dx) - la) * 10.0f / d;
 							see_d += drr;
 							see_a += daa;
 
@@ -416,6 +414,10 @@ void Larticles_Doe(Larticles *larticles)
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_1] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_2] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_3] = 0.0f;
+					if (lsee.state == 0)
+					{
+						larticles->larticles[i].potentials[NEURON_SEE_STATE_0] = 1.0f;
+					}
 					if (lsee.state == 1)
 					{
 						larticles->larticles[i].potentials[NEURON_SEE_STATE_1] = 1.0f;
@@ -437,6 +439,7 @@ void Larticles_Doe(Larticles *larticles)
 				{
 					larticles->larticles[i].potentials[NEURON_SEE_DISTANCE_1] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_DISTANCE_2] = 0.0f;
+					larticles->larticles[i].potentials[NEURON_SEE_STATE_0] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_1] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_2] = 0.0f;
 					larticles->larticles[i].potentials[NEURON_SEE_STATE_3] = 0.0f;
@@ -446,7 +449,7 @@ void Larticles_Doe(Larticles *larticles)
 				}
 			
 				larticles->larticles[i].potentials[NEURON_FIELD_DISTANCE] = see_d;
-				larticles->larticles[i].potentials[NEURON_FIELD_ANGLE] = see_d;
+				larticles->larticles[i].potentials[NEURON_FIELD_ANGLE] = see_a;
 			}
 
 			float dv = larticles->larticles[i].vx*larticles->larticles[i].vx +

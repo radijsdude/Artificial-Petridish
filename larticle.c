@@ -154,7 +154,6 @@ void Larticle_Calculate_All(Larticle *larticle)
 	Larticle_Calculate(larticle,NEURON_STATE_3);
 	Larticle_Calculate(larticle,NEURON_OUT_1);
 	Larticle_Calculate(larticle,NEURON_OUT_2);
-	Larticle_Calculate(larticle,NEURON_FREQUENCY);
 }
 
 void Larticle_Correct(Larticle *larticle, int i)
@@ -227,6 +226,7 @@ void Larticle_Gravitate(Larticle *larticle)
 		larticle->ax = fx;
 		larticle->ay = fy;
 		larticle->potentials[NEURON_INSIDE] = 1.0f;
+		larticle->health -= 1.0f;
 	}
 	else
 	{
