@@ -17,7 +17,7 @@ void Larticles_Initiate(Larticles *larticles)
 		p.m = 5.0f;
 		
 		float rra = (float)(rand()%100)/100.0f * 2.0f * M_PI;
-		float rrd = (float)rand()*UNIVERSE_SIZE/(RAND_MAX)/4;
+		float rrd = (float)rand()*UNIVERSE_SIZE/(RAND_MAX)/5;
 		p.x = (float)rrd* cos(rra) + (float)UNIVERSE_SIZE/2.0f;
 		p.y = (float)rrd* sin(rra) + (float)UNIVERSE_SIZE/2.0f;
 		p.vx = 0.0f;
@@ -93,20 +93,22 @@ void Larticles_Doe(Larticles *larticles)
 	float cx = 0.0f;
 	float cy = 0.0f;
 	float smax = 0.0f;
-	if (larticles->meteor.state < 10)
+	if (larticles->meteor.state < (int)UNIVERSE_SIZE/1000)
 	{
 		Larticle_Gravitate(&larticles->meteor);
 		larticles->meteor.vx += larticles->meteor.ax;
 		larticles->meteor.vy += larticles->meteor.ay;
-		float dv = larticles->meteor.vx*larticles->meteor.vx +
-			larticles->meteor.vy*larticles->meteor.vy;
-
-			if (dv > (float)METEOR_MAX_SPEED*(float)METEOR_MAX_SPEED)
-			{
-				float sdv = sqrt(dv);
-				larticles->meteor.vx = (float)METEOR_MAX_SPEED * larticles->meteor.vx / sdv;
-				larticles->meteor.vy = (float)METEOR_MAX_SPEED * larticles->meteor.vy / sdv;
-			}
+		float dv = larticles->meteor.vx*larticles->meteor.vx + larticles->meteor.vy*larticles->meteor.vy;
+		if (dv < (float)UNIVERSE_SIZE / 6.0f)
+		{
+			larticles->meteor.state = 10;
+		}
+		if (dv > (float)METEOR_MAX_SPEED*(float)METEOR_MAX_SPEED)
+		{
+			float sdv = sqrt(dv);
+			larticles->meteor.vx = (float)METEOR_MAX_SPEED * larticles->meteor.vx / sdv;
+			larticles->meteor.vy = (float)METEOR_MAX_SPEED * larticles->meteor.vy / sdv;
+		}
 		larticles->meteor.x += larticles->meteor.vx;
 		larticles->meteor.y += larticles->meteor.vy;
 	}
@@ -165,6 +167,18 @@ void Larticles_Doe(Larticles *larticles)
 				
 				Larticle_Calculate_All(&larticles->larticles[i]);
 				
+				if (larticles->larticles[i].potentials[NEURON_FLIP] > 0.5)
+				{
+					if (larticles->larticles[i].potentials[NEURON_FLIPPED] < 0.5f)
+					{
+						larticles->larticles[i].potentials[NEURON_FLIPPED] = 1.0f;
+					}
+					else
+					{
+						larticles->larticles[i].potentials[NEURON_FLIPPED] = 0.0f;
+					}
+				}
+				
 				smax = 0.0f;
 				larticles->larticles[i].state = 0;
 				if (larticles->larticles[i].potentials[NEURON_STATE_1] > smax)
@@ -185,7 +199,7 @@ void Larticles_Doe(Larticles *larticles)
 
 				if(larticles->larticles[i].state ==1)
 				{
-					larticles->larticles[i].health += (float)LARTICLES_REGEN;
+					larticles->larticles[i].health += (float)LARTICLES_REGEN * 2.0f;
 					larticles->larticles[i].color[0] = 0;
 					larticles->larticles[i].color[1] = 0;
 					larticles->larticles[i].color[2] = 255;
@@ -220,10 +234,10 @@ void Larticles_Doe(Larticles *larticles)
 
 				if (larticles->larticles[i].state != 0)
 				{
-					larticles->larticles[i].health -= UNIVERSE_DAMAGE * 
+					larticles->larticles[i].health -= (float)UNIVERSE_DAMAGE * 
 					(float)larticles->larticles[i].connections_length/(float)NEURONS_CONNECTIONS;
 				}
-				if (larticles->larticles[i].state != 1)
+				if (larticles->larticles[i].state != 1 || 1)
 				{
 					mx = larticles->larticles[i].potentials[NEURON_MOVE_X_1] - 
 					larticles->larticles[i].potentials[NEURON_MOVE_X_2];
@@ -289,7 +303,7 @@ void Larticles_Doe(Larticles *larticles)
 			}
 
 
-			//larticles->larticles[i].anglespeed *= (1.0f - 20.0f * UNIVERSE_FRICTION);
+			
 			ma1 = 0.0f;
 			ma2 = 0.0f;
 			if (larticles->larticles[i].potentials[NEURON_MOVE_ANGLE_1] > 0.5f)
@@ -300,7 +314,7 @@ void Larticles_Doe(Larticles *larticles)
 			{
 				ma2 = larticles->larticles[i].potentials[NEURON_MOVE_ANGLE_2] - 0.5f;
 			}
-			larticles->larticles[i].angle += (ma1 - ma2) * M_PI/12.0f;//larticles->larticles[i].anglespeed;
+			larticles->larticles[i].angle += (ma1 - ma2) * M_PI/12.0f;
 			if (larticles->larticles[i].angle >= M_PI)
 			{
 				larticles->larticles[i].angle = -M_PI;
@@ -333,6 +347,13 @@ void Larticles_Doe(Larticles *larticles)
 						{
 							Larticle_Collide(&larticles->larticles[i],&larticles->larticles[j]);
 						}
+						if (d < larticles->larticles[i].r*larticles->larticles[i].r*4.0f)
+						{
+							if (larticles->larticles[i].state == 1)
+							{
+								larticles->larticles[i].health += (float)LARTICLES_REGEN/5.0f;
+							}
+						}
 						if (d < LARTICLE_VISUAL_RANGE * LARTICLE_VISUAL_RANGE && 
 						larticles->larticles[i].time > LARTICLE_TIME)
 						{
@@ -345,7 +366,7 @@ void Larticles_Doe(Larticles *larticles)
 							(ly + sinn - larticles->larticles[j].y) -
 							(ly - larticles->larticles[j].y) *
 							(lx + coss - larticles->larticles[j].x);
-							float rr = larticles->larticles[j].r + tan(LARTICLE_FOV) *  sqrt(d);
+							float rr = larticles->larticles[j].r + tan(LARTICLE_FOV/2.0f) *  sqrt(d);
 							if (D * D < rr * rr)
 							{
 								float sign = 1;
@@ -355,7 +376,7 @@ void Larticles_Doe(Larticles *larticles)
 								}
 								float Dx1 = (D * sinn + sign * coss * sqrt(rr - D*D));
 								float Dx2 = (D * sinn - sign * coss * sqrt(rr - D*D));
-								float Dy1 = (D * coss + abs(sinn) * sqrt(rr - D*D));
+								float Dy1 = ( - D * coss + abs(sinn) * sqrt(rr - D*D));
 								float Dy2 = ( - D * coss - abs(sinn) * sqrt(rr - D*D));
 								int s = 0;
 								if (coss >= 0.0f && Dx1 >= 0.0f)
@@ -454,14 +475,34 @@ void Larticles_Doe(Larticles *larticles)
 
 			float dv = larticles->larticles[i].vx*larticles->larticles[i].vx +
 			larticles->larticles[i].vy*larticles->larticles[i].vy;
-
-			if (dv > (float)LARTICLE_MAX_SPEED*(float)LARTICLE_MAX_SPEED)
+			if (dv < LARTICLE_MAX_SPEED_0 / 10.0f)
+			{
+				larticles->larticles[i].health += (float)LARTICLES_REGEN;
+			}
+			float vmax = 0.0f;
+			if (larticles->larticles[i].state == 0)
+			{
+				vmax = LARTICLE_MAX_SPEED_0;
+			}
+			if (larticles->larticles[i].state == 1)
+			{
+				vmax = LARTICLE_MAX_SPEED_1;
+			}
+			if (larticles->larticles[i].state == 2)
+			{
+				vmax = LARTICLE_MAX_SPEED_2;
+			}
+			if (larticles->larticles[i].state == 3)
+			{
+				vmax = LARTICLE_MAX_SPEED_3;
+			}
+			if (dv > vmax*vmax)
 			{
 				float sdv = sqrt(dv);
-				larticles->larticles[i].vx = (float)LARTICLE_MAX_SPEED * larticles->larticles[i].vx / sdv;
-				larticles->larticles[i].vy = (float)LARTICLE_MAX_SPEED * larticles->larticles[i].vy / sdv;
+				larticles->larticles[i].vx = (float)vmax * larticles->larticles[i].vx / sdv;
+				larticles->larticles[i].vy = (float)vmax * larticles->larticles[i].vy / sdv;
 			}
-
+			
 			larticles->larticles[i].vx *= (1.0f - (float)UNIVERSE_FRICTION);
 			larticles->larticles[i].vy *= (1.0f - (float)UNIVERSE_FRICTION);
 			larticles->larticles[i].x += larticles->larticles[i].vx;

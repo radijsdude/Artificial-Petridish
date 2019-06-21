@@ -53,7 +53,7 @@ int main( int argc, char* args[] )
 	int rtime = rstop - rstart;
 	int seed = time(NULL);
 	srand(seed);
-	int delay = 0;
+	int delay = 3;
 	int fullscreen = 0;
 
 
@@ -130,7 +130,7 @@ int main( int argc, char* args[] )
 							delay += 1;
 							break;
 						case SDLK_j:
-							if (delay > 0)
+							if (delay > 3)
 							{
 								delay -= 1;
 							}

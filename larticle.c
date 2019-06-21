@@ -154,6 +154,7 @@ void Larticle_Calculate_All(Larticle *larticle)
 	Larticle_Calculate(larticle,NEURON_STATE_3);
 	Larticle_Calculate(larticle,NEURON_OUT_1);
 	Larticle_Calculate(larticle,NEURON_OUT_2);
+	Larticle_Calculate(larticle,NEURON_FLIP);
 }
 
 void Larticle_Correct(Larticle *larticle, int i)
@@ -198,7 +199,14 @@ void Larticle_Create_Connections(Larticle *larticle)
 				}
 			}
 			float weight = ((float)(rand()%(2*NEURONS_WEIGHT_SIZE) - NEURONS_WEIGHT_SIZE)/NEURONS_WEIGHT_SCALE);
-			if (tt==1)
+			if (tt==1&&i2!=NEURON_FLIPPED&&i2!=NEURON_ALIVE_1&&i2!=NEURON_ALIVE_2&&i2!=NEURON_SEE_DISTANCE_1&&
+			i2!=NEURON_SEE_DISTANCE_2&&i2!=NEURON_SEE&&i2!=NEURON_SEE_ANGLE&&i2!=NEURON_SEE_STATE_0&&
+			i2!=NEURON_SEE_STATE_1&&i2!=NEURON_SEE_STATE_2&&i2!=NEURON_SEE_STATE_3&&
+			i2!=NEURON_SEE_HEALTH&&i2!=NEURON_FIELD_DISTANCE&&i2!=NEURON_FIELD_ANGLE&&
+			i1!=NEURON_MOVE_X_1&&i1!=NEURON_MOVE_Y_1&&i1!=NEURON_MOVE_ANGLE_1&&
+			i1!=NEURON_MOVE_X_2&&i1!=NEURON_MOVE_Y_2&&i1!=NEURON_MOVE_ANGLE_2&&i1!=NEURON_STATE_1&&
+			i1!=NEURON_STATE_2&&i1!=NEURON_STATE_3&&i1!=NEURON_SPLIT&&i1!=NEURON_EAT&&i1!=NEURON_ATTACK&&i1!=NEURON_FLIP&&
+			i2!=NEURON_FLIPPED)
 			{
 				t = Larticle_Add_Connection(larticle,i1,i2,weight);
 			}
