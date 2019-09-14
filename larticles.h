@@ -1,13 +1,12 @@
 #ifndef LARTICLES_H_INCLUDED
 #define LARTICLES_H_INCLUDED
 #ifndef LARTICLE_H_INCLUDED
-#include "larticle.c"
+#include "larticle.h"
 #endif
 typedef struct
 {
 	Larticle larticles[LARTICLES_MAX];
 	int larticles_amount;
-	Larticle meteor;
 }Larticles;
 
 

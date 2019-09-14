@@ -5,8 +5,6 @@
 void Larticle_Print(Larticle *larticle)
 {
     printf("Larticle: \n\n");
-    printf("x: %f\n",larticle->x);
-    printf("y: %f\n",larticle->y);
     printf("Connections Length: %d\n\n", larticle->connections_length);
     printf("Potentials: \n\n");
     for (int i=0; i<NEURONS_AMOUNT; i++)
@@ -57,7 +55,7 @@ int Larticle_Add_Connection(Larticle *larticle, int i, int j, float weight)
 		larticle->connections[larticle->connections_length][0] = i;
 		larticle->connections[larticle->connections_length][1] = j;
 		larticle->weights[larticle->connections_length] = weight;
-		if (!Larticle_Test_Connection(larticle,j,NEURON_DEPTH))
+		if (!Larticle_Test_Connection(larticle,j,5))
 		{
 			larticle->connections[larticle->connections_length][0] = 0;
 			larticle->connections[larticle->connections_length][1] = 0;
@@ -140,21 +138,19 @@ float Larticle_Calculate(Larticle *larticle, int i)
 }
 void Larticle_Calculate_All(Larticle *larticle)
 {
-	Larticle_Calculate(larticle,NEURON_MOVE_X_1);
-	Larticle_Calculate(larticle,NEURON_MOVE_Y_1);
-	Larticle_Calculate(larticle,NEURON_MOVE_ANGLE_1);
-	Larticle_Calculate(larticle,NEURON_MOVE_X_2);
-	Larticle_Calculate(larticle,NEURON_MOVE_Y_2);
-	Larticle_Calculate(larticle,NEURON_MOVE_ANGLE_2);
+	Larticle_Calculate(larticle,NEURON_MOVE_X);
+	Larticle_Calculate(larticle,NEURON_MOVE_Y);
+	Larticle_Calculate(larticle,NEURON_MOVE_ANGLE);
 	Larticle_Calculate(larticle,NEURON_ATTACK);
 	Larticle_Calculate(larticle,NEURON_EAT);
+	Larticle_Calculate(larticle,NEURON_GRAVITY);
+	Larticle_Calculate(larticle,NEURON_TANGENTIAL);
 	Larticle_Calculate(larticle,NEURON_SPLIT);
 	Larticle_Calculate(larticle,NEURON_STATE_1);
 	Larticle_Calculate(larticle,NEURON_STATE_2);
 	Larticle_Calculate(larticle,NEURON_STATE_3);
 	Larticle_Calculate(larticle,NEURON_OUT_1);
 	Larticle_Calculate(larticle,NEURON_OUT_2);
-	Larticle_Calculate(larticle,NEURON_FLIP);
 }
 
 void Larticle_Correct(Larticle *larticle, int i)
@@ -199,14 +195,7 @@ void Larticle_Create_Connections(Larticle *larticle)
 				}
 			}
 			float weight = ((float)(rand()%(2*NEURONS_WEIGHT_SIZE) - NEURONS_WEIGHT_SIZE)/NEURONS_WEIGHT_SCALE);
-			if (tt==1&&i2!=NEURON_FLIPPED&&i2!=NEURON_ALIVE_1&&i2!=NEURON_ALIVE_2&&i2!=NEURON_SEE_DISTANCE_1&&
-			i2!=NEURON_SEE_DISTANCE_2&&i2!=NEURON_SEE&&i2!=NEURON_SEE_ANGLE&&i2!=NEURON_SEE_STATE_0&&
-			i2!=NEURON_SEE_STATE_1&&i2!=NEURON_SEE_STATE_2&&i2!=NEURON_SEE_STATE_3&&
-			i2!=NEURON_SEE_HEALTH&&i2!=NEURON_FIELD_DISTANCE&&i2!=NEURON_FIELD_ANGLE&&
-			i1!=NEURON_MOVE_X_1&&i1!=NEURON_MOVE_Y_1&&i1!=NEURON_MOVE_ANGLE_1&&
-			i1!=NEURON_MOVE_X_2&&i1!=NEURON_MOVE_Y_2&&i1!=NEURON_MOVE_ANGLE_2&&i1!=NEURON_STATE_1&&
-			i1!=NEURON_STATE_2&&i1!=NEURON_STATE_3&&i1!=NEURON_SPLIT&&i1!=NEURON_EAT&&i1!=NEURON_ATTACK&&i1!=NEURON_FLIP&&
-			i2!=NEURON_FLIPPED)
+			if (tt==1)
 			{
 				t = Larticle_Add_Connection(larticle,i1,i2,weight);
 			}
@@ -219,7 +208,7 @@ void Larticle_Gravitate(Larticle *larticle)
 {
 	float dx = (float)(larticle->x - UNIVERSE_SIZE / 2.0f);
 	float dy = (float)(larticle->y - UNIVERSE_SIZE / 2.0f);
-	if (dx*dx + dy*dy > UNIVERSE_SIZE / 2.0f * UNIVERSE_SIZE / 2.0f || larticle->state > 4)
+	if (dx*dx + dy*dy > (UNIVERSE_SIZE-100)*(UNIVERSE_SIZE-100)/4)
 	{
 		if (dx == 0.0f)
 		{
@@ -233,12 +222,9 @@ void Larticle_Gravitate(Larticle *larticle)
 		float fy = (float)(-dy / ((float)UNIVERSE_FORCE) * (dx * dx + dy * dy));
 		larticle->ax = fx;
 		larticle->ay = fy;
-		larticle->potentials[NEURON_INSIDE] = 1.0f;
-		larticle->health -= 1.0f;
 	}
 	else
 	{
-		larticle->potentials[NEURON_INSIDE] = 0.0f;
 		larticle->ax = 0.0f;
 		larticle->ay = 0.0f;
 	}
@@ -257,7 +243,7 @@ void Larticle_Heridity(Larticle *larticle1, Larticle *larticle2)
 	for (int m = 0; m < mr; m++)
 	{
 		int r = rand() % 102;
-		if (r < 25)
+		if (r < 33)
 		{
 			int ri = rand()%NEURONS_AMOUNT;
 			int rj = rand()%NEURONS_AMOUNT;
@@ -277,7 +263,7 @@ void Larticle_Heridity(Larticle *larticle1, Larticle *larticle2)
 			}
 			else
 			{
-				if (r < 90)
+				if (r < 99)
 				{
 					if (larticle2->connections_length > 0)
 					{
@@ -289,10 +275,7 @@ void Larticle_Heridity(Larticle *larticle1, Larticle *larticle2)
 				}
 				else
 				{
-					if (r > 100)
-					{
-						Larticle_Create_Connections(larticle1);
-					}
+					Larticle_Create_Connections(larticle1);
 				}
 			}
 		}

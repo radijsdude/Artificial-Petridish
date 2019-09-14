@@ -1,7 +1,7 @@
 
 #ifndef LARTICLE_H_INCLUDED
 #define LARTICLE_H_INCLUDED
-#ifndef VISUAL_H_INCLUDED
+#ifndef CONSTANTS_H_INCLUDED
 #include "constants.h"
 #endif
 typedef struct

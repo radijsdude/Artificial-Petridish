@@ -1,8 +1,8 @@
 #ifndef LARTICLES_H_INCLUDED
-#include "larticles.c"
+#include "larticles.h"
 #endif
 #ifndef VISUAL_H_INCLUDED
-#include "visual.c"
+#include "visual.h"
 #endif
 void Larticles_Blits(SDL_Renderer *renderer, Larticles *larticles, float scale, float x, float y);
 
@@ -21,18 +21,6 @@ void Larticles_Blits(SDL_Renderer *renderer, Larticles *larticles, float scale, 
 		(int)(((larticles->larticles[i].y+y) + larticles->larticles[i].r * sin(larticles->larticles[i].angle)) * scale)
 		);
 	}
-	Draw_circle(renderer, (int)((larticles->meteor.x+x) * scale),(int)((larticles->meteor.y+y) * scale),
-		(int)((larticles->meteor.r +1.0f) * scale), (int)(255),
-		(int)(255),
-		(int)(0), (int)(255), 1);
-	Draw_circle(renderer, (int)((larticles->meteor.x+x) * scale),(int)((larticles->meteor.y+y) * scale),
-		(int)((larticles->meteor.r*0.6f + 1.0f) * scale), (int)(100),
-		(int)(100),
-		(int)(100), (int)(255), 1);
-	Draw_circle(renderer, (int)((larticles->meteor.x+x) * scale),(int)((larticles->meteor.y+y) * scale),
-		(int)((larticles->meteor.r*0.3f + 1.0f) * scale), (int)(124),
-		(int)(60),
-		(int)(5), (int)(255), 1);
 }
 
 int main( int argc, char* args[] )
@@ -53,7 +41,7 @@ int main( int argc, char* args[] )
 	int rtime = rstop - rstart;
 	int seed = time(NULL);
 	srand(seed);
-	int delay = 3;
+	int delay = 0;
 	int fullscreen = 0;
 
 
@@ -98,28 +86,28 @@ int main( int argc, char* args[] )
 							running = 0;
 							break;
 						case SDLK_RIGHT:
-							x -= 20.0f/scale;
+							x -= 20.0f;
 							break;
 						case SDLK_d:
-							x -= 20.0f/scale;
+							x -= 20.0f;
 							break;
 						case SDLK_LEFT:
-							x += 20.0f/scale;
+							x += 20.0f;
 							break;
 						case SDLK_q:
-							x += 20.0f/scale;
+							x += 20.0f;
 							break;
 						case SDLK_UP:
-							y += 20.0f/scale;
+							y += 20.0f;
 							break;
 						case SDLK_z:
-							y += 20.0f/scale;
+							y += 20.0f;
 							break;
 						case SDLK_DOWN:
-							y -= 20.0f/scale;
+							y -= 20.0f;
 							break;
 						case SDLK_s:
-							y -= 20.0f/scale;
+							y -= 20.0f;
 							break;
 						case SDLK_r:
 							x = ((float)UNIVERSE_SIZE/2.0f - SCREEN_X/2);
@@ -130,7 +118,7 @@ int main( int argc, char* args[] )
 							delay += 1;
 							break;
 						case SDLK_j:
-							if (delay > 3)
+							if (delay > 0)
 							{
 								delay -= 1;
 							}
@@ -155,6 +143,8 @@ int main( int argc, char* args[] )
 						}
 						case SDLK_x:
 							Larticles_Doe(&larticles);
+						case SDLK_y:
+							Larticles_Initiate(&larticles);
 
 					}
 

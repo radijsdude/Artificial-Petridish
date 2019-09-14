@@ -1,6 +1,8 @@
 #include "visual.h"
-
-
+#include <SDL.h>
+#ifndef CONSTANTS_H_INCLUDED
+#include "constants.h"
+#endif // CONSTANTS_H_INCLUDED
 void Draw_rect(SDL_Renderer *renderer, int x, int y, int b, int l, int color[4], int filled)
 {
 	if (0 <= x && x <= SCREEN_X && 0 <= y && y <= SCREEN_Y)
